@@ -1,0 +1,8 @@
+# BRDF Importance Sampling - Minimal Requirements
+# Only essential dependencies for the current implementation
+
+# Core numerical computing (required)
+numpy>=1.21.0
+
+# Scientific plotting (required for visualizations)
+matplotlib>=3.5.0 
