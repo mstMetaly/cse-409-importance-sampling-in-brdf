@@ -2,6 +2,10 @@
 
 An interactive Python application for exploring and comparing different sampling strategies in Bidirectional Reflectance Distribution Function (BRDF) evaluation. This project demonstrates the effectiveness of importance sampling over uniform sampling for Monte Carlo integration in computer graphics rendering.
 
+**Team Z_Buffer**: 2005076, 2005106, 2005110  
+**Course**: CSE 409 - Computer Graphics  
+**Institution**: BUET
+
 ## 🎯 Project Overview
 
 This project implements and visualizes various BRDF models (Phong, Blinn-Phong, Cook-Torrance) with different sampling strategies to demonstrate the power of importance sampling in reducing variance and improving convergence in Monte Carlo integration.
@@ -31,7 +35,7 @@ This project implements and visualizes various BRDF models (Phong, Blinn-Phong, 
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd Assignment
+   cd Importance-Sampling-in-BRDF-Graphics--main
    ```
 
 2. **Create a virtual environment** (recommended):
@@ -60,7 +64,7 @@ This project implements and visualizes various BRDF models (Phong, Blinn-Phong, 
 
 Run the main application:
 ```bash
-python brdf_interactive.py
+python code/brdf_interactive.py
 ```
 
 The application will start with a numerical comparison and then present an interactive menu with visualization options.
@@ -95,38 +99,43 @@ The application will start with a numerical comparison and then present an inter
 
 #### Phong BRDF
 ```python
-f_r = (R · V)^n
+f_r = max(R · V, 0)^n
 ```
 - Simple and computationally efficient
 - Good for glossy surfaces
 - Adjustable specular power (n)
+- Uses reflection direction R
 
 #### Blinn-Phong BRDF
 ```python
-f_r = (N · H)^n
+f_r = max(N · H, 0)^n
 ```
 - More physically plausible than Phong
-- Uses half-angle vector (H)
+- Uses half-angle vector H = normalize(L + V)
 - Better for specular highlights
+- More stable than Phong
 
 #### Cook-Torrance BRDF
 ```python
-f_r = (D * F * G) / (4 * N·V * N·L)
+f_r ∝ D(θ) · F(θ) · G(θ)
 ```
 - Physically-based rendering model
 - Includes distribution (D), Fresnel (F), and geometry (G) terms
 - More realistic for rough surfaces
+- Industry standard for PBR
 
 ### Sampling Strategies
 
 #### Uniform Sampling
 - Random samples distributed across the hemisphere
+- PDF: `p(ω) = 1/(2π)`
 - Simple implementation but inefficient
 - High variance, slow convergence
 
 #### Importance Sampling
 - Samples concentrated where the BRDF is large
-- For Phong BRDF: θ = arccos(u^(1/(n+1)))
+- **Phong/Blinn-Phong**: `θ = arccos(u₁^(1/(n+1)))`, `φ = 2πu₂`
+- **Cook-Torrance**: `p(θ) ∝ D(θ)cos(θ)`
 - Dramatically reduces variance
 - Faster convergence
 
@@ -135,14 +144,15 @@ f_r = (D * F * G) / (4 * N·V * N·L)
 The project demonstrates Monte Carlo integration of the rendering equation:
 
 ```
-L_o = ∫ f_r(ω_i, ω_o) L_i(ω_i) cos(θ_i) dω_i
+L_o(v̂) = ∫ f_r(l̂, v̂) L_i(l̂) (n̂ · l̂) dl̂
 ```
 
 Where:
 - `L_o`: Outgoing radiance
 - `f_r`: BRDF function
 - `L_i`: Incident radiance
-- `cos(θ_i)`: Cosine term
+- `n̂ · l̂`: Cosine term
+- `l̂, v̂, n̂`: Light, view, and normal directions
 
 ## 📊 Results and Performance
 
@@ -197,7 +207,7 @@ To add a new BRDF model:
 
 ### Modifying Parameters
 
-Key configuration constants in `brdf_interactive.py`:
+Key configuration constants in `code/brdf_interactive.py`:
 ```python
 N_SAMPLES = 1000              # Default number of samples
 DEFAULT_SPECULAR_POWER = 32   # Default Phong exponent
@@ -207,15 +217,37 @@ L_i = 1.0                     # Incident light intensity
 ## 📁 Project Structure
 
 ```
-Assignment/
-├── brdf_interactive.py      # Main application
-├── requirements.txt         # Python dependencies
-├── presentation.tex         # LaTeX presentation source
-├── presentation_script.md   # Presentation guide
-├── 409 Assignment.pdf       # Assignment document
-├── brdf_env/               # Virtual environment (ignored by git)
-└── README.md               # This file
+Importance-Sampling-in-BRDF-Graphics--main/
+├── code/
+│   ├── brdf_interactive.py      # Main application
+│   └── requirements.txt         # Python dependencies
+├── slide/
+│   ├── Z_Buffer_76_106_110.tex  # LaTeX presentation source
+│   ├── Z_Buffer_76_106_110.pdf  # Compiled presentation
+│   ├── brdf_cone_diagram.png    # BRDF visualization
+│   └── brdf_lobes_clean.png     # BRDF lobes comparison
+├── resources/
+│   └── 409 Assignment.pdf       # Assignment document
+└── README.md                    # This file
 ```
+
+## 📖 Presentation Content
+
+The project includes a comprehensive LaTeX presentation (`slide/Z_Buffer_76_106_110.pdf`) covering:
+
+### Key Topics Covered:
+1. **Rendering Challenge**: Why sampling is necessary for the rendering equation
+2. **BRDF Basics**: Three specular models (Phong, Blinn-Phong, Cook-Torrance)
+3. **Monte Carlo Integration**: Estimating integrals with random sampling
+4. **Importance Sampling PDFs**: Mathematical foundation for each model
+5. **Variable Definitions**: Complete guide to mathematical notation
+6. **Implementation Hints**: Practical coding considerations
+7. **Model Selection**: When to use which BRDF model
+
+### Mathematical Formulas:
+- **Phong**: `f_r = max(r̂ · v̂, 0)^n` with PDF `p(θ_R) = (n+1)/(2π)cos^n(θ_R)`
+- **Blinn-Phong**: `f_r = max(n̂ · ĥ, 0)^n` with PDF `p(θ_H) = (n+1)/(2π)cos^n(θ_H)`
+- **Cook-Torrance**: `f_r ∝ D(θ)F(θ)G(θ)` with PDF `p(θ) ∝ D(θ)cos(θ)`
 
 ## 🤝 Contributing
 
@@ -235,4 +267,4 @@ This is an educational project, but suggestions and improvements are welcome:
 
 ---
 
-**Happy Rendering! 🎨✨** 
+**Team Z_Buffer** - *Happy Rendering! 🎨✨* 
